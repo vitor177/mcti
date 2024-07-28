@@ -82,4 +82,59 @@ yesterday_str
 # %%
 yesterday_files = [file for file in resultados if yesterday_str in file]
 yesterday_files
+
+# %%
+# %%
+
+url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/{str(yesterday_files[0])}/"
+
+arquivo = requests.get(url, headers=headers)
+
+# %%
+type(arquivo)
+
+# %%
+resposta = arquivo.json().get('file_content')
+# %%
+resposta 
+# %%
+arquivo.content
+# %%
+import csv
+from io import StringIO
+
+def str_to_csv(data_str, output_file):
+    """
+    Converte uma string com dados CSV para um arquivo CSV.
+    
+    Args:
+        data_str (str): A string contendo os dados no formato CSV.
+        output_file (str): O caminho do arquivo CSV de saída.
+    """
+    # Usar StringIO para tratar a string como um arquivo
+    csv_data = StringIO(data_str)
+    
+    # Abrir o arquivo CSV de saída
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        # Criar um objeto DictReader para ler a string como um arquivo CSV
+        reader = csv.reader(csv_data)
+        
+        # Criar um objeto writer para escrever o arquivo CSV
+        writer = csv.writer(csvfile)
+        
+        # Escrever as linhas no arquivo CSV
+        for row in reader:
+            writer.writerow(row)
+
+    print(f"Dados salvos em {output_file}")
+
+# Exemplo de uso:
+csv_string = resposta
+output_csv_file = 'output.csv'
+str_to_csv(csv_string, output_csv_file)
+
+# %%
+import pandas as pd
+df = pd.read_csv('output.csv')
+df.tail()
 # %%
