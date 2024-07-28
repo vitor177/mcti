@@ -1,0 +1,15 @@
+{
+    "is_active": true,
+    "override_altitude": 10.0,
+    "override_latitude": -0.05398,
+    "override_longitude": -51.15508,
+    "override_name": "Santana_AMAPA",
+    "override_timezone": "America/Fortaleza",
+    "project": {
+        "key": "GWFR",
+        "name": "AP01 - Santana_AMAPA"
+    },
+    "serial": "D230012",
+    "series": "meteo-40",
+    "station_number": ""
+}
