@@ -42,7 +42,6 @@ headers = {"Authorization": f"Token {token}"}
 response = requests.get(url, headers=headers)
 
 if response.status_code == 200:
-    print(format_output(response.content))
     with open("meu_teste.json", 'w', encoding='utf-8') as file:
         file.write(format_output(response.content))
 else:
@@ -138,3 +137,9 @@ import pandas as pd
 df = pd.read_csv('output.csv')
 df.tail()
 # %%
+print(df[:1441].isna().sum().sum())
+# %%
+# %%
+5840/40
+# %%
+df[1440:]
