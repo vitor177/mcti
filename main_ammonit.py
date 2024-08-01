@@ -128,7 +128,3 @@ if __name__=="__main__":
         else:
             processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
             print(f"Não foi encontrado dados do dia especificado para a estação: {name}")
-
-
-# %%
-# %%
