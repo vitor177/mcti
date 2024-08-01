@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 import csv
 from io import StringIO
 from ammonit_relatorio import processa_tudo, processa_tudo_ausente
+import sys
+import os
 
 estacoes_chave_valor = {"GWFR": "f7c9d9394c73b9bd3d020eb485d5387de6b4d31b",
                         "MFXD": "8d96c5fbfc6f1d61141f7c9743d157e4f836fbf7",
@@ -49,6 +51,9 @@ def converter_data(data_str):
     return data_formatada
 
 def str_to_csv(data_str, output_file):
+        
+        #os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
         csv_data = StringIO(data_str)
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             # Criar um objeto DictReader para ler a string como um arquivo CSV
@@ -97,12 +102,21 @@ def get_files(project_key, token, file_type="primary"):
             resultados.append(i.get('original_filename'))
     return resultados
 
-
-
-#for project_key, token in estacoes_chave_valor.items():
-#project_key = "DHMJ"
-#token = "cb9be99f7ed3767d132c34b1c1e0a484564bc5be"
 if __name__=="__main__":
+
+    if len(sys.argv) != 2:
+        print("Uso: python main_ammonit.py dd/mm/yyyy")
+        sys.exit(1)
+
+    data_str = sys.argv[1]
+
+    try:
+        data = datetime.strptime(data_str, "%d/%m/%Y")
+        data_formatada = data.strftime("%Y%m%d")
+    except ValueError:
+        print("Data inválida. Use o formato dd/mm/yyyy.")
+        sys.exit(1)
+    
 
     for project_key, token in estacoes_chave_valor.items():
 
@@ -110,25 +124,24 @@ if __name__=="__main__":
 
         lista_arquivos = get_files(project_key, token)
 
-        yesterday_files = [file for file in lista_arquivos if get_dia_anterior() in file]
+        filtered_files = [file for file in lista_arquivos if data_formatada in file]
 
         # %%
         file_type = "primary"
 
         project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
 
-        if len(yesterday_files) > 0:
-            url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/{str(yesterday_files[0])}/"
-
+        if len(filtered_files) > 0:
+            url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/{str(filtered_files[0])}/"
             arquivo = requests.get(url, headers=headers)
             resposta = arquivo.json().get('file_content')
 
-            str_to_csv(resposta, yesterday_files[0])
-            processa_tudo(yesterday_files[0], name_project=name, data=converter_data(get_dia_anterior()))
-
+            str_to_csv(resposta, filtered_files[0])
+            processa_tudo(filtered_files[0], name_project=name, data=converter_data(data_formatada))
         else:
-            processa_tudo_ausente(name_project=name, data=converter_data(get_dia_anterior()))
+            processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
             print(f"Não foi encontrado dados do dia especificado para a estação: {name}")
+
 
 # %%
 # %%
