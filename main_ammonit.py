@@ -1,9 +1,3 @@
-
-# %%
-#project_keys = ["GWFR", "MFXD", "DDCV", "DHMJ", "KHVF", "ZXXR", "VHKM"]
-# VHKM
-#token =  "43e0270934f859c6f09b28cdb63274beecc4aae3"
-
 import json
 import requests
 from datetime import datetime, timedelta    
@@ -20,8 +14,6 @@ estacoes_chave_valor = {"GWFR": "f7c9d9394c73b9bd3d020eb485d5387de6b4d31b",
                         "KHVF": "1a8dbdc10d927c4cd1a367114a3ebcc29d5381ee",
                         "VHKM": "ce3c7608b5c3806db6fb48303b7a9128ac4fd6d1"}
 
-# Santana (ACESSO), Ilha de Maracá, Porto Grande (ALLOW), Laranjal Jari (ACESSO), Tartarugalzinho (ACESSO), Fernando de Noronha (ACESSO)
-
 def extrair_data(nome_arquivo):
   componentes = nome_arquivo.split('_')
 
@@ -33,7 +25,6 @@ def extrair_data(nome_arquivo):
   data_str = componentes[1]
   data = f"{data_str[6:8]}-{data_str[4:6]}-{data_str[:4]}"
   return data
-
 
 def converter_data(data_str):
     # Verifica se a string tem o comprimento correto
@@ -52,10 +43,9 @@ def converter_data(data_str):
 
 def str_to_csv(data_str, output_file):
         
-        #os.makedirs(os.path.dirname(output_file), exist_ok=True)
-
         csv_data = StringIO(data_str)
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+
             # Criar um objeto DictReader para ler a string como um arquivo CSV
             reader = csv.reader(csv_data)
             
@@ -66,12 +56,13 @@ def str_to_csv(data_str, output_file):
             for row in reader:
                 writer.writerow(row)
 
-# Retorna string do dia anterior, isto é, 20240728
+# Retorna string do dia anterior
 def get_dia_anterior():
     yesterday = datetime.now() - timedelta(2)
     yesterday_str = yesterday.strftime('%Y%m%d')
     return yesterday_str
-# %%
+
+
 def get_data(project_key, token):
     url = f"https://or.ammonit.com/api/{project_key}/loggers-list/"
     headers = {"Authorization": f"Token {token}"}
@@ -85,11 +76,9 @@ def get_data(project_key, token):
         longitude = data[0]['override_longitude']
 
     return key, name, serial, latitude, longitude
-# %%
 
-# Obter lista de arquivos
-# para minuto sete primary
-# para secundo sete secondary
+# Lista de arquivos
+# primary para segundos e secodnary para segundos
 def get_files(project_key, token, file_type="primary"):
     project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
     url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/"
@@ -117,7 +106,6 @@ if __name__=="__main__":
         print("Data inválida. Use o formato dd/mm/yyyy.")
         sys.exit(1)
     
-
     for project_key, token in estacoes_chave_valor.items():
 
         headers = {"Authorization": f"Token {token}"}
@@ -126,7 +114,6 @@ if __name__=="__main__":
 
         filtered_files = [file for file in lista_arquivos if data_formatada in file]
 
-        # %%
         file_type = "primary"
 
         project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
