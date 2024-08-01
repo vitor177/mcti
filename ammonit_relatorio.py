@@ -47,6 +47,10 @@ def etl_minute(df):
     # Automatizar isso
     latitude = -0.05398
     longitude = -51.15508
+
+    # Fernando de Noronha
+    altitude = 20
+
     longitude_ref = -45
     isc = 1367
     colunas = df.columns
