@@ -129,6 +129,7 @@ if __name__=="__main__":
             processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
             print(f"Não foi encontrado dados do dia especificado para a estação: {name}")
 
+    # Comente se quiser armazenar os arquivos baixados
     for f in os.listdir('./'):
         if f.endswith('.csv'):
             os.remove(f)

@@ -34,7 +34,8 @@ def timestamp_para_horalocal(timestamp_str):
     horalocal = timestamp.hour * 60 + timestamp.minute
     return horalocal
 
-def etl_minute(df):
+def etl_minute(df, name_project):
+
     duplicated_rows = df[df.duplicated()]
     
     df['Date/time'] = pd.to_datetime(df['Date/time'])
@@ -44,9 +45,34 @@ def etl_minute(df):
 
     missing_timestamps = all_timestamps.difference(df['Date/time'])
 
-    # Automatizar isso
-    latitude = -0.05398
-    longitude = -51.15508
+    # Tive que fazer essa etapa manual, pois na API alguns dados de latitude e longitude retornavam NULL, mesmo com o dado fornecido
+    # no ammonit  ! VERIFICAR ISSO COM CAIO 
+
+    if "PE01" in name_project:
+        # Fernando de Noronha PE01
+        latitude = 	-3.834722
+        longitude = -32.398611
+    elif "AP01" in name_project:
+        # Santana
+        latitude =  -0.053980
+        longitude = -51.155080
+    elif "AP02" in name_project:
+        # Porto Grande
+        latitude = 	0.697290
+        longitude = -51.389150
+    elif "AP03" in name_project:
+        # Laranjal
+        latitude = 	-0.828611
+        longitude = -52.507222
+    elif "AP04" in name_project:
+        # Ilha de Maracá
+        latitude = 	2.096944
+        longitude = -50.496944
+    else:
+        # Tartarugalzinho
+        latitude = 1.519722
+        longitude = -50.917778
+
 
     longitude_ref = -45
     isc = 1367
@@ -96,7 +122,9 @@ def processa_tudo(filename, name_project, data):
     dados, _ = parser(filename)
     df = lista_para_df(dados)
 
-    qtd_duplicados, qtd_missing, dic = etl_minute(df)
+    print(name_project)
+
+    qtd_duplicados, qtd_missing, dic = etl_minute(df, name_project)
 
     with open(f"summary_log.txt-{data}", 'a', encoding="utf-8") as f:
         f.write(f"Nome do Projeto: {name_project}\n")
@@ -108,11 +136,17 @@ def processa_tudo(filename, name_project, data):
         inner_dict = dic[outer_key]
         value = next(iter(inner_dict.values()))
 
+        #print(value)
+
         total = 1440
 
         f.write(f"    Quantidade fisicamente possíveis: {value}\n")
 
+
+
         anomalos = total - int(value)
+
+
         #status = ""
         if anomalos/total < 0.01:
             status = "Consistente"
