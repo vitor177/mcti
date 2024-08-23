@@ -75,8 +75,6 @@ def get_data(project_key, token):
         latitude = data[0]['override_latitude']
         longitude = data[0]['override_longitude']
 
-
-
     return key, name, serial, latitude, longitude
 
 # Lista de arquivos
@@ -118,18 +116,10 @@ if __name__=="__main__":
     for project_key, token in estacoes_chave_valor.items():
 
         headers = {"Authorization": f"Token {token}"}
-
         lista_arquivos = get_files(project_key, token)
-
         filtered_files = [file for file in lista_arquivos if data_formatada in file]
-
         file_type = "primary"
-
         project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
-
-
-        
-
 
         if len(filtered_files) > 0:
             url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/{str(filtered_files[0])}/"
@@ -141,8 +131,6 @@ if __name__=="__main__":
         else:
             processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
             print(f"Não foram encontrados dados do dia especificado para a estação: {name}")
-
-
 
     # Comente se quiser armazenar os arquivos baixados
     for f in os.listdir('./'):
