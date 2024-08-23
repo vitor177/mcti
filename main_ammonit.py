@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import requests
 from datetime import datetime, timedelta    
@@ -6,13 +8,6 @@ from io import StringIO
 from ammonit_relatorio import processa_tudo, processa_tudo_ausente, gera_cabecalho
 import sys
 import os
-
-estacoes_chave_valor = {"GWFR": "f7c9d9394c73b9bd3d020eb485d5387de6b4d31b",
-                        "MFXD": "8d96c5fbfc6f1d61141f7c9743d157e4f836fbf7",
-                        "DDCV": "2af5f00785a4df006f4b5a93c6dca699a546f5ba", 
-                        "DHMJ": "cb9be99f7ed3767d132c34b1c1e0a484564bc5be", 
-                        "KHVF": "1a8dbdc10d927c4cd1a367114a3ebcc29d5381ee",
-                        "VHKM": "ce3c7608b5c3806db6fb48303b7a9128ac4fd6d1"}
 
 def extrair_data(nome_arquivo):
   componentes = nome_arquivo.split('_')
@@ -97,20 +92,33 @@ def get_files(project_key, token, file_type="primary"):
 
 if __name__=="__main__":
 
+    estacoes_chave_valor = {"GWFR": "f7c9d9394c73b9bd3d020eb485d5387de6b4d31b",
+                        "MFXD": "8d96c5fbfc6f1d61141f7c9743d157e4f836fbf7",
+                        "DDCV": "2af5f00785a4df006f4b5a93c6dca699a546f5ba", 
+                        "DHMJ": "cb9be99f7ed3767d132c34b1c1e0a484564bc5be", 
+                        "KHVF": "1a8dbdc10d927c4cd1a367114a3ebcc29d5381ee",
+                        "VHKM": "ce3c7608b5c3806db6fb48303b7a9128ac4fd6d1"}
+
     if len(sys.argv) != 2:
-        print("Uso: python main_ammonit.py dd/mm/yyyy")
-        sys.exit(1)
+        data_formatada = get_dia_anterior()
 
-    data_str = sys.argv[1]
+    else:
+        data_str = sys.argv[1]
+        try:
+            data = datetime.strptime(data_str, "%d/%m/%Y")
+            data_formatada = data.strftime("%Y%m%d")
+        except ValueError:
+            print("Data inválida. Use o formato dd/mm/yyyy.")
+            sys.exit(1)
 
-    try:
-        data = datetime.strptime(data_str, "%d/%m/%Y")
-        data_formatada = data.strftime("%Y%m%d")
-    except ValueError:
-        print("Data inválida. Use o formato dd/mm/yyyy.")
-        sys.exit(1)
+    diretorio_script = os.path.dirname(os.path.abspath(__file__))
+    
+    nome_arquivo = f"summary_log-{converter_data(data_formatada)}.txt"
 
-    gera_cabecalho(data=converter_data(data_formatada))
+    caminho_arquivo = os.path.join(diretorio_script, nome_arquivo)
+
+
+    gera_cabecalho(data=converter_data(data_formatada), arquivo=caminho_arquivo)
 
     
     for project_key, token in estacoes_chave_valor.items():
@@ -127,9 +135,9 @@ if __name__=="__main__":
             resposta = arquivo.json().get('file_content')
 
             str_to_csv(resposta, filtered_files[0])
-            processa_tudo(filtered_files[0], name_project=name, data=converter_data(data_formatada))
+            processa_tudo(filtered_files[0], name_project=name, data=converter_data(data_formatada), arquivo=caminho_arquivo)
         else:
-            processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
+            processa_tudo_ausente(name_project=name, data=converter_data(data_formatada), arquivo=caminho_arquivo)
             print(f"Não foram encontrados dados do dia especificado para a estação: {name}")
 
     # Comente se quiser armazenar os arquivos baixados

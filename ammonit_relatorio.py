@@ -3,6 +3,7 @@ from io import StringIO
 from datetime import datetime
 import numpy as np
 import logging
+import os
 
 # Dado um .csv de minuto, retorna o dataframe de dados e o dataframe de metadados
 def parser(filename):
@@ -119,12 +120,12 @@ def etl_minute(df, name_project):
 
     return len(duplicated_rows), len(missing_timestamps), info_ghi
 
-# Exemplo de uso
 
 
 
-def gera_cabecalho(data):
-    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
+
+def gera_cabecalho(data, arquivo):
+    with open(arquivo, 'a', encoding="utf-8") as f:
         f.write(f"Registro diário\n")
         f.write(f"Data: {data}\n")
         f.write(f"Execução: {obter_data_hora()}\n\n\n")
@@ -132,7 +133,7 @@ def gera_cabecalho(data):
 
 
 # Tenho que passar de forma automática o Project Name, Serial, Override_latitude e Override_longitude
-def processa_tudo(filename, name_project, data):
+def processa_tudo(filename, name_project, data, arquivo):
     dados, _ = parser(filename)
     df = lista_para_df(dados)
 
@@ -140,7 +141,9 @@ def processa_tudo(filename, name_project, data):
 
     qtd_duplicados, qtd_missing, dic = etl_minute(df, name_project)
 
-    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
+
+
+    with open(arquivo, 'a', encoding="utf-8") as f:
         f.write(f"Nome do Projeto: {name_project}\n")
         f.write(f"Data: {data}\n")
         f.write(f"    Quantidade de duplicados: {qtd_duplicados}\n")
@@ -176,8 +179,8 @@ def processa_tudo(filename, name_project, data):
 
         f.write("\n\n")
 
-def processa_tudo_ausente(name_project, data):
-    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
+def processa_tudo_ausente(name_project, data, arquivo):
+    with open(arquivo, 'a', encoding="utf-8") as f:
         f.write(f"Nome do Projeto: {name_project}\n")
         f.write(f"Data: {data}\n")
         f.write(f"Não houve arquivos para o dia especificado.\n")
