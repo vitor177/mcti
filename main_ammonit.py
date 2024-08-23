@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, timedelta    
 import csv
 from io import StringIO
-from ammonit_relatorio import processa_tudo, processa_tudo_ausente
+from ammonit_relatorio import processa_tudo, processa_tudo_ausente, gera_cabecalho
 import sys
 import os
 
@@ -81,6 +81,10 @@ def get_data(project_key, token):
 # primary para segundos e secodnary para segundos
 def get_files(project_key, token, file_type="primary"):
     project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
+
+    #print(device_serial)
+    #print(f"Latitude: {latitude}")
+    #print(f"Longitude: {longitude}")
     url = f"https://or.ammonit.com/api/{project_key}/{device_serial}/files/{file_type}/"
     headers = {"Authorization": f"Token {token}"}
     data = requests.get(url, headers=headers).json()
@@ -105,17 +109,16 @@ if __name__=="__main__":
     except ValueError:
         print("Data inválida. Use o formato dd/mm/yyyy.")
         sys.exit(1)
+
+    gera_cabecalho(data=converter_data(data_formatada))
+
     
     for project_key, token in estacoes_chave_valor.items():
 
         headers = {"Authorization": f"Token {token}"}
-
         lista_arquivos = get_files(project_key, token)
-
         filtered_files = [file for file in lista_arquivos if data_formatada in file]
-
         file_type = "primary"
-
         project_key, name, device_serial, latitude, longitude = get_data(project_key, token)
 
         if len(filtered_files) > 0:
@@ -127,7 +130,7 @@ if __name__=="__main__":
             processa_tudo(filtered_files[0], name_project=name, data=converter_data(data_formatada))
         else:
             processa_tudo_ausente(name_project=name, data=converter_data(data_formatada))
-            print(f"Não foi encontrado dados do dia especificado para a estação: {name}")
+            print(f"Não foram encontrados dados do dia especificado para a estação: {name}")
 
     # Comente se quiser armazenar os arquivos baixados
     for f in os.listdir('./'):

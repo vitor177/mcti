@@ -34,6 +34,12 @@ def timestamp_para_horalocal(timestamp_str):
     horalocal = timestamp.hour * 60 + timestamp.minute
     return horalocal
 
+def obter_data_hora():
+    agora = datetime.now()
+    
+    data_hora_str = agora.strftime('%d/%m/%Y %H:%M:%S')    
+    return data_hora_str
+
 def etl_minute(df, name_project):
 
     duplicated_rows = df[df.duplicated()]
@@ -115,7 +121,15 @@ def etl_minute(df, name_project):
 
 # Exemplo de uso
 
-# Passando o csv raw e retornando o relatório por estação
+
+
+def gera_cabecalho(data):
+    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
+        f.write(f"Registro diário\n")
+        f.write(f"Data: {data}\n")
+        f.write(f"Execução: {obter_data_hora()}\n\n\n")
+
+
 
 # Tenho que passar de forma automática o Project Name, Serial, Override_latitude e Override_longitude
 def processa_tudo(filename, name_project, data):
@@ -126,7 +140,7 @@ def processa_tudo(filename, name_project, data):
 
     qtd_duplicados, qtd_missing, dic = etl_minute(df, name_project)
 
-    with open(f"summary_log.txt-{data}", 'a', encoding="utf-8") as f:
+    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
         f.write(f"Nome do Projeto: {name_project}\n")
         f.write(f"Data: {data}\n")
         f.write(f"    Quantidade de duplicados: {qtd_duplicados}\n")
@@ -163,7 +177,7 @@ def processa_tudo(filename, name_project, data):
         f.write("\n\n")
 
 def processa_tudo_ausente(name_project, data):
-    with open(f"summary_log.txt-{data}", 'a', encoding="utf-8") as f:
+    with open(f"summary_log-{data}.txt", 'a', encoding="utf-8") as f:
         f.write(f"Nome do Projeto: {name_project}\n")
         f.write(f"Data: {data}\n")
         f.write(f"Não houve arquivos para o dia especificado.\n")
